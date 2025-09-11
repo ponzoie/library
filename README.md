@@ -3,7 +3,6 @@ gcc 12.2.0
 C++20  
 ほぼAtCoder用です。  
 
-MIT License
 ***
 参考
 - [拡張ユークリッドの互除法 〜 一次不定方程式 ax + by = c の解き方 〜](https://qiita.com/drken/items/b97ff231e43bce50199a)
