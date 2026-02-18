@@ -17,3 +17,4 @@ AtCoder用
 - [繰り返し二乗法によるべき乗(pow(x,n))の計算のアルゴリズム](https://algo-logic.info/calc-pow/)
 - [cpprefjp - C++日本語リファレンス](https://cpprefjp.github.io)
 - [高校数学の美しい物語](https://manabitimes.jp/math)
+- [整数論１ 初等整数論からp進数へ](https://www.nippyo.co.jp/shop/book/6276.html)
