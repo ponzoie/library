@@ -1,123 +1,86 @@
-#include <stdint.h>
 
 #include <cassert>
-#include <limits>
 #include <vector>
 
-#include "Matrix.hpp"
-#include "geometry.hpp"
-namespace shizu {
-namespace math {
+namespace ponzoie {
+// デフォルトの演算
+template <class T> T add_default(T a, T b) { return a + b; }
+template <class T> T mul_default(T a, T b) { return a * b; }
+template <class T> T zero_default() { return T{}; }
+template <class T> T one_default() { return T{1}; }
+template <class T> T neg_default(T a) { return -a; }
 
+// 代数
+//
+template <class T, T (*add_op)(T, T) = add_default<T>,
+          T (*mul_op)(T, T) = mul_default<T>, T (*zero_op)() = zero_default<T>,
+          T (*one_op)() = one_default<T>, T (*neg_op)(T) = neg_default<T>>
+struct Ring {
+    static constexpr T add(T a, T b) { return add_op(a, b); }
+    static constexpr T mul(T a, T b) { return mul_op(a, b); }
+    static constexpr T zero() { return zero_op(); }
+    static constexpr T one() { return one_op(); }
+    static constexpr T neg(T a) { return neg_op(a); }
+    static constexpr T sub(S a, S b) { return add(a, neg(b)); }
+};
 
-unsigned long long safe_multiply(unsigned long long a, unsigned long long b) {
-    const unsigned long long MAX_64 =
-        std::numeric_limits<unsigned long long>::max();
-    const unsigned long long OVERFLOW_VALUE = 3e18;
-    if (MAX_64 / b > a) {
-        return OVERFLOW_VALUE;
-    } else {
-        return a * b;
-    }
-}
-
-unsigned long long floor_sqrt(unsigned long long x) {
-    assert(x != 0);
-    unsigned long long left = 0;
-    unsigned long long right = 3e18;
-    while (left <= right) {
-        unsigned long long mid = (right + left) / 2;
-        if (mid * mid > x) {
-            right = mid - 1;
-        } else {
-            left = mid + 1;
-        }
-    }
-
-    return right;
-}
-
-unsigned long long safe_pow(unsigned long long base,
-                            unsigned long long exponent) {
-    assert(base != 0);
-    if (exponent == 0) {
-        return 1;
+// https://atcoder.jp/contests/abc445/submissions/73408031
+template <class T, class Alg = Ring<long long>> struct Matrix {
+    std::vector<T> data;
+    int h, w;
+    Matrix(int h = 0, int w = 0, T fill = Alg::zero())
+        : h(h), w(w), data(h * w, fill) {}
+    Matrix(int h, int w, std::vector<std::vector<T>> &mat)
+        : data(h * w), h(h), w(w) {
+        for (int i = 0; i < h; ++i)
+            for (int j = 0; j < w; ++j)
+                data[i * w + j] = mat[i][j];
     }
 
-    const unsigned long long MAX_LL =
-        std::numeric_limits<unsigned long long>::max();
-    const unsigned long long OVERFLOW_VALUE = 3e18;
-    long long result = 1;
-    for (int i = 0; i < exponent; ++i) {
-        if (result > MAX_LL / base) {
-            return OVERFLOW_VALUE;
-        }
-        result *= base;
+    T &at(int i, int j) { return data[i * w + j]; }
+    const T &at(int i, int j) const { return data[i * w + j]; }
+
+    Matrix identity_e(int n) const {
+        Matrix I(n, n, Alg::zero());
+        for (int i = 0; i < n; ++i)
+            I.at(i, i) = Alg::one();
+        return I;
     }
-    return result;
-}
 
-std::vector<long long> eratosthenes(long long x) {
-    std::vector<long long> is_prime(x + 1, true);
-    std::vector<long long> ret;
-    for (long long p = 2; p <= x; ++p) {
-        if (!is_prime[p]) continue;
-        ret.emplace_back(p);
-        for (long long q = p * 2; q <= x; q += p) {
-            is_prime[q] = false;
-        }
-    }
-    return ret;
-}
-
-unsigned long long modpow(unsigned long long a, unsigned long long n,
-                          unsigned long long mod) {
-    assert(mod >= 1);
-    unsigned long long res = 1;
-    while (n > 0) {
-        if (n & 1) res = res * a % mod;
-        a = a * a % mod;
-        n >>= 1;
-    }
-    return res;
-}
-
-template <typename T>
-T positive_mod(T a, T b) {
-    T res = a % b;
-    if (res < 0) {
-        res += b;
-    }
-    return res;
-}
-
-template <typename T>
-T floor_div(T a, T b) {
-    assert(b != 0);
-    T res = a / b;
-    if ((a % b != 0) && ((a < 0) != (b < 0))) {
-        res--;
-    }
-    return res;
-}
-
-template <typename T>
-T ceil_div(T a, T b) {
-    assert(b != 0);
-
-    T res = a / b;
-    if ((a % b != 0) && ((a < 0) == (b < 0))) {
-        res++;
-
+    Matrix operator+(const Matrix &rhs) const {
+        assert(h == rhs.h && w == rhs.w);
+        Matrix res(h, w, Alg::zero());
+        for (int i = 0; i < h * w; ++i)
+            res.data[i] = Alg::add(data[i], rhs.data[i]);
         return res;
     }
-}
 
-// 正負関係なくx+yの床関数を求める 整数型以外許容しない
-template <typename T>
-T safe_floor_mid(const T x, const T y) {
-    return (x & y) + ((x ^ y) >> 1);
-}
+    Matrix operator*(const Matrix &rhs) const {
+        assert(w == rhs.h);
+        Matrix res(h, rhs.w, Alg::zero());
+        for (int i = 0; i < h; ++i) {
+            for (int k = 0; k < w; ++k) {
+                T aik = at(i, k);
+                for (int j = 0; j < rhs.w; ++j) {
+                    res.at(i, j) =
+                        Alg::add(res.at(i, j), Alg::mul(aik, rhs.at(k, j)));
+                }
+            }
+        }
+        return res;
+    }
 
-}  // namespace math
-}  // namespace shizu
+    Matrix pow(long long e) const {
+        assert(h == w);
+        Matrix base = *this;
+        Matrix res = this->identity_e(h);
+        while (e > 0) {
+            if (e & 1)
+                res = res * base;
+            base = base * base;
+            e >>= 1;
+        }
+        return res;
+    }
+};
+} // namespace ponzoie
