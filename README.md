@@ -1,7 +1,7 @@
 # Library
-gcc 12.2.0  
+gcc 13.3.0  
 C++20  
-ほぼAtCoder用です。  
+AtCoder用  
 
 ***
 参考
