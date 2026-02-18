@@ -2,7 +2,7 @@
 #include<functional>
 #include<vector>
 
-namespace shizu{
+namespace ponzoie{
 //双対セグメントツリー
 // 区間更新、点更新 共に O(log N)
 

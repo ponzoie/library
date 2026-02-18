@@ -2,7 +2,7 @@
 #include<iostream>
 #include<cassert>
 
-namespace shizu{
+namespace ponzoie{
 class UnionFind {
   private:
     std::vector<int> par;

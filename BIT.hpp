@@ -4,7 +4,7 @@
 #include<algorithm>
 #include<math.h>
 
-namespace shizu{
+namespace ponzoie{
 class BIT{
 public:
     int n;
