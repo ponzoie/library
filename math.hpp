@@ -1,3 +1,6 @@
+#ifndef PONZOIE_MATH_HPP
+#define PONZOIE_MATH_HPP
+#endif
 
 #include <cassert>
 #include <vector>
@@ -13,10 +16,8 @@ template <class T> T neg_default(T a) { return -a; }
 // 代数
 //
 template <class T, T (*add_op)(T, T) = add_default<T>,
-          T (*mul_op)(T, T) = mul_default<T>,
-          T (*zero_op)() = zero_default<T>,
-          T (*one_op)() = one_default<T>,
-          T (*neg_op)(T) = neg_default<T>>
+          T (*mul_op)(T, T) = mul_default<T>, T (*zero_op)() = zero_default<T>,
+          T (*one_op)() = one_default<T>, T (*neg_op)(T) = neg_default<T>>
 struct Ring {
     static constexpr T add(T a, T b) { return add_op(a, b); }
     static constexpr T mul(T a, T b) { return mul_op(a, b); }
