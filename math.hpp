@@ -1,6 +1,5 @@
 #ifndef PONZOIE_MATH_HPP
 #define PONZOIE_MATH_HPP
-#endif
 
 #include <cassert>
 #include <vector>
@@ -87,3 +86,4 @@ template <class T, class Alg = Ring<long long>> struct Matrix {
     }
 };
 } // namespace ponzoie
+#endif
